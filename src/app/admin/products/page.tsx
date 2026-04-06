@@ -18,9 +18,9 @@ export default async function AdminProductsPage() {
       <div className="flex justify-end">
         <Link
           href="/admin/products/new"
-          className="rounded-full bg-[#11110f] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-[#f97316] hover:text-black"
+          className="rounded-full bg-[#c9a227] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black transition hover:bg-[#e2c769]"
         >
-          Add new product
+          Ajouter un produit
         </Link>
       </div>
       <section className="grid gap-4">

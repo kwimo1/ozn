@@ -14,7 +14,7 @@ export function AddToCartButton({ product }: { product: Product }) {
   return (
     <div className="space-y-5 rounded-[2rem] border border-white/10 bg-white/5 p-6">
       <div className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.28em] text-stone-400">Choose size</p>
+        <p className="text-sm uppercase tracking-[0.28em] text-stone-400">Taille / المقاس</p>
         <div className="flex flex-wrap gap-3">
           {product.variants.map((variant) => (
             <button
@@ -23,7 +23,7 @@ export function AddToCartButton({ product }: { product: Product }) {
               onClick={() => setSelectedVariant(variant.label)}
               className={`rounded-full border px-4 py-2 text-sm uppercase tracking-[0.2em] transition ${
                 selectedVariant === variant.label
-                  ? "border-[#f97316] bg-[#f97316] text-black"
+                  ? "border-[#c9a227] bg-[#c9a227] text-black"
                   : "border-white/15 text-stone-200 hover:border-white/40"
               }`}
             >
@@ -34,7 +34,7 @@ export function AddToCartButton({ product }: { product: Product }) {
       </div>
       <div className="flex items-center gap-4">
         <label className="text-sm uppercase tracking-[0.2em] text-stone-400" htmlFor="qty">
-          Qty
+          Qt
         </label>
         <input
           id="qty"
@@ -58,9 +58,9 @@ export function AddToCartButton({ product }: { product: Product }) {
             slug: product.slug,
           })
         }
-        className="w-full rounded-full bg-[#f97316] px-6 py-4 text-sm font-semibold uppercase tracking-[0.24em] text-black transition hover:bg-[#fb923c]"
+        className="w-full rounded-full bg-[#c9a227] px-6 py-4 text-sm font-semibold uppercase tracking-[0.24em] text-black transition hover:bg-[#e2c769]"
       >
-        Add to Cart · {formatCurrency(product.price)}
+        Ajouter au panier - {formatCurrency(product.price)}
       </button>
     </div>
   );

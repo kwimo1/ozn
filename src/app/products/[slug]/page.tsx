@@ -32,8 +32,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
 
           <div className="space-y-6">
-            <p className="text-sm uppercase tracking-[0.3em] text-[#f97316]">{product.category}</p>
-            <h1 className="display-font text-6xl uppercase tracking-[0.12em] text-white md:text-8xl">{product.title}</h1>
+            <p className="text-sm uppercase tracking-[0.3em] text-[#c9a227]">{product.category}</p>
+            <h1 className="display-font text-5xl uppercase tracking-[0.12em] text-white md:text-8xl">{product.title}</h1>
             <div className="flex items-end gap-4">
               <p className="text-3xl font-semibold text-white">{formatCurrency(product.price)}</p>
               {product.comparePrice ? (
@@ -55,12 +55,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5">
-                <p className="text-sm uppercase tracking-[0.24em] text-stone-400">Availability</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{product.inventory} units ready</p>
+                <p className="text-sm uppercase tracking-[0.24em] text-stone-400">Disponibilite</p>
+                <p className="mt-2 text-2xl font-semibold text-white">{product.inventory} pieces pretes</p>
               </div>
               <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5">
-                <p className="text-sm uppercase tracking-[0.24em] text-stone-400">Shipping</p>
-                <p className="mt-2 text-2xl font-semibold text-white">2-5 days nationwide</p>
+                <p className="text-sm uppercase tracking-[0.24em] text-stone-400">Livraison</p>
+                <p className="mt-2 text-2xl font-semibold text-white">Desk ou domicile en Algerie</p>
               </div>
             </div>
 
@@ -71,8 +71,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         {related.length ? (
           <section className="section-frame mt-16 pt-16">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-stone-400">Related</p>
-              <h2 className="display-font mt-3 text-5xl uppercase tracking-[0.12em] text-white">Keep the drop moving</h2>
+              <p className="text-sm uppercase tracking-[0.3em] text-stone-400">Associes</p>
+              <h2 className="display-font mt-3 text-5xl uppercase tracking-[0.12em] text-white">Continue le drop</h2>
             </div>
             <div className="mt-8 grid gap-8 md:grid-cols-3">
               {related.map((entry) => (

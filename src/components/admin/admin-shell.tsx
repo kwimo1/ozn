@@ -13,14 +13,17 @@ export function AdminShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#f5f1ea] text-[#11110f]">
+    <div className="min-h-screen bg-[#f7f2e2] text-[#11110f]">
       <div className="mx-auto grid min-h-screen max-w-7xl gap-8 px-4 py-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8">
         <aside className="rounded-[2rem] bg-[#0d0d10] p-6 text-stone-100">
-          <p className="text-xs uppercase tracking-[0.3em] text-stone-500">Admin Suite</p>
-          <p className="mt-3 text-2xl font-black uppercase tracking-[0.24em]">Nova Thread</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-[#c9a227]/70">Admin Suite</p>
+          <p className="mt-3 text-2xl font-black uppercase tracking-[0.24em] text-[#f5de8b]">OZN Store</p>
           <nav className="mt-10 space-y-3 text-sm uppercase tracking-[0.22em] text-stone-300">
             <Link className="block rounded-full px-4 py-3 transition hover:bg-white/10" href="/admin">
               Dashboard
+            </Link>
+            <Link className="block rounded-full px-4 py-3 transition hover:bg-white/10" href="/admin/drop">
+              Hero Drop
             </Link>
             <Link className="block rounded-full px-4 py-3 transition hover:bg-white/10" href="/admin/products">
               Products
@@ -38,7 +41,7 @@ export function AdminShell({
             <form action={logoutAction} className="mt-4">
               <button
                 type="submit"
-                className="rounded-full border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-stone-200 transition hover:border-white/40"
+                className="rounded-full border border-[#c9a227]/35 px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#f5de8b] transition hover:border-[#f5de8b]"
               >
                 Logout
               </button>

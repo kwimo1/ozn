@@ -8,7 +8,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col gap-4 border-t border-white/15 pt-5 transition hover:border-[#f97316]"
+      className="group flex flex-col gap-4 border-t border-white/15 pt-5 transition hover:border-[#c9a227]"
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-[1.8rem] bg-[#141418]">
         <img
@@ -16,9 +16,9 @@ export function ProductCard({ product }: { product: Product }) {
           alt={product.title}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
         />
-        <div className="absolute inset-x-4 bottom-4 flex items-center justify-between text-xs uppercase tracking-[0.24em] text-white">
+        <div className="absolute inset-x-4 bottom-4 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-white">
           <span>{product.category}</span>
-          <span>{product.inventory > 0 ? "In Stock" : "Sold Out"}</span>
+          <span>{product.inventory > 0 ? "Disponible" : "Epuise"}</span>
         </div>
       </div>
       <div className="flex items-end justify-between gap-4">

@@ -1,14 +1,14 @@
 "use server";
 
-import fs from "fs/promises";
-import path from "path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authenticateAdmin, createSession, destroySession } from "@/lib/auth";
 import {
+  clearHeroDrop,
   deleteProduct,
   getAllProducts,
   getProductById,
+  saveHeroDrop,
   saveProduct,
   updateOrderStatus,
   updateProductStatus,
@@ -39,16 +39,9 @@ function ensureUniqueSlug(rawSlug: string, productId?: string) {
 }
 
 async function storeUpload(file: File) {
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadsDir, { recursive: true });
-
-  const extension = path.extname(file.name) || ".png";
-  const filename = `${Date.now()}-${slugify(file.name.replace(extension, ""))}${extension}`;
-  const destination = path.join(uploadsDir, filename);
   const buffer = Buffer.from(await file.arrayBuffer());
-
-  await fs.writeFile(destination, buffer);
-  return `/uploads/${filename}`;
+  const mimeType = file.type || "application/octet-stream";
+  return `data:${mimeType};base64,${buffer.toString("base64")}`;
 }
 
 export async function loginAction(_: LoginState, formData: FormData): Promise<LoginState> {
@@ -61,7 +54,7 @@ export async function loginAction(_: LoginState, formData: FormData): Promise<Lo
     return { error: "Invalid admin email or password." };
   }
 
-  await createSession(user.id);
+  await createSession(user);
   redirect("/admin");
 }
 
@@ -143,6 +136,43 @@ export async function upsertProductAction(formData: FormData) {
   revalidatePath("/admin/products");
   revalidatePath(`/products/${slug}`);
   redirect("/admin/products");
+}
+
+export async function upsertHeroDropAction(formData: FormData) {
+  const badge = String(formData.get("badge") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const ctaLabel = String(formData.get("ctaLabel") ?? "").trim() || "Voir le drop";
+  const existingImage = String(formData.get("existingImage") ?? "").trim();
+  const upload = formData.get("image");
+  const uploadedImage =
+    upload instanceof File && upload.size > 0 ? await storeUpload(upload) : "";
+  const imageUrl = uploadedImage || existingImage;
+
+  if (!badge || !title || !description || !imageUrl) {
+    throw new Error("Invalid hero drop payload.");
+  }
+
+  saveHeroDrop({
+    badge,
+    title,
+    description,
+    ctaLabel,
+    imageUrl,
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/admin/drop");
+  redirect("/admin/drop");
+}
+
+export async function clearHeroDropAction() {
+  clearHeroDrop();
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/admin/drop");
+  redirect("/admin/drop");
 }
 
 export async function setProductStatusAction(formData: FormData) {

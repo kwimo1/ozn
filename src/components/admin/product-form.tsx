@@ -43,7 +43,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
             name="title"
             defaultValue={product?.title}
             required
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           />
         </label>
         <label className="grid gap-2">
@@ -52,7 +52,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
             name="slug"
             defaultValue={product?.slug}
             placeholder="leave blank to auto-generate"
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           />
         </label>
       </div>
@@ -64,7 +64,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
           defaultValue={product?.description}
           required
           rows={5}
-          className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+          className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
         />
       </label>
 
@@ -75,7 +75,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
             name="category"
             defaultValue={product?.category}
             required
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           />
         </label>
         <label className="grid gap-2">
@@ -84,30 +84,30 @@ export function ProductForm({ action, product }: ProductFormProps) {
             name="tags"
             defaultValue={product?.tags}
             placeholder="drop-01,featured"
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           />
         </label>
         <label className="grid gap-2">
-          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Price (NGN)</span>
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Prix (DZD)</span>
           <input
             name="price"
             defaultValue={product ? product.price / 100 : ""}
             required
             type="number"
             min={0}
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           />
         </label>
         <label className="grid gap-2">
           <span className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
-            Compare Price (NGN)
+            Prix barré (DZD)
           </span>
           <input
             name="comparePrice"
             defaultValue={product?.comparePrice ? product.comparePrice / 100 : ""}
             type="number"
             min={0}
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           />
         </label>
       </div>
@@ -121,7 +121,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
             required
             type="number"
             min={0}
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           />
         </label>
         <label className="grid gap-2">
@@ -129,7 +129,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
           <select
             name="status"
             defaultValue={product?.status ?? "draft"}
-            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+            className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
@@ -138,7 +138,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
         </label>
         <label className="flex items-center gap-3 rounded-[1.25rem] border border-stone-200 px-4 py-3">
           <input type="checkbox" name="featured" defaultChecked={product?.featured} className="size-4" />
-          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Featured drop</span>
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Mise en avant</span>
         </label>
       </div>
 
@@ -154,13 +154,13 @@ export function ProductForm({ action, product }: ProductFormProps) {
                 name="variantLabel"
                 defaultValue={row.label}
                 placeholder="Variant label"
-                className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+                className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
               />
               <input
                 name="variantSku"
                 defaultValue={row.sku}
                 placeholder="SKU"
-                className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+                className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
               />
               <input
                 name="variantStock"
@@ -168,7 +168,7 @@ export function ProductForm({ action, product }: ProductFormProps) {
                 placeholder="Stock"
                 type="number"
                 min={0}
-                className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#f97316]"
+                className="rounded-[1.25rem] border border-stone-200 px-4 py-3 outline-none focus:border-[#c9a227]"
               />
             </div>
           ))}
@@ -200,9 +200,9 @@ export function ProductForm({ action, product }: ProductFormProps) {
 
       <button
         type="submit"
-        className="rounded-full bg-[#11110f] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-[#f97316] hover:text-black"
+        className="rounded-full bg-[#c9a227] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black transition hover:bg-[#e2c769]"
       >
-        {product ? "Update product" : "Create product"}
+        {product ? "Mettre à jour le produit" : "Créer le produit"}
       </button>
     </form>
   );

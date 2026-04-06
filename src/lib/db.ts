@@ -1,10 +1,15 @@
 import fs from "fs";
 import path from "path";
+import { tmpdir } from "os";
 import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 import Database from "better-sqlite3";
 
-const dataDir = path.join(process.cwd(), "data");
+const dataDir = process.env.STORE_DATA_DIR
+  ? process.env.STORE_DATA_DIR
+  : process.env.VERCEL
+    ? path.join(tmpdir(), "ozn-store")
+    : path.join(process.cwd(), "data");
 const databasePath = path.join(dataDir, "store.db");
 
 fs.mkdirSync(dataDir, { recursive: true });
@@ -99,13 +104,89 @@ function initializeDatabase() {
       FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
       FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT
     );
+
+    CREATE TABLE IF NOT EXISTS hero_drop (
+      id TEXT PRIMARY KEY,
+      badge TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      image_url TEXT NOT NULL,
+      cta_label TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
+
+  if (!columnExists("orders", "shipping_mode")) {
+    db.exec("ALTER TABLE orders ADD COLUMN shipping_mode TEXT DEFAULT 'desk'");
+  }
+
+  normalizeCatalogLabels();
 
   const adminCount = db.prepare("SELECT COUNT(*) AS count FROM admin_users").get() as { count: number };
 
   if (adminCount.count === 0) {
     seedDatabase();
   }
+
+  seedHeroDrop();
+}
+
+function columnExists(table: string, column: string) {
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
+  return columns.some((entry) => entry.name === column);
+}
+
+function normalizeCatalogLabels() {
+  const now = new Date().toISOString();
+
+  db.prepare(
+    `
+      UPDATE products
+      SET
+        category = CASE
+          WHEN category = 'Outerwear' THEN 'Vestes'
+          WHEN category = 'Tops' THEN 'Maillots'
+          ELSE category
+        END,
+        tags = REPLACE(REPLACE(tags, 'outerwear', 'vestes'), 'tops', 'maillots'),
+        updated_at = ?
+      WHERE category IN ('Outerwear', 'Tops')
+        OR tags LIKE '%outerwear%'
+        OR tags LIKE '%tops%'
+    `,
+  ).run(now);
+}
+
+function seedHeroDrop() {
+  const now = new Date().toISOString();
+
+  db.prepare(
+    `INSERT OR IGNORE INTO hero_drop (id, badge, title, description, image_url, cta_label, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    "homepage-drop",
+    "Nouveau Drop / جديد",
+    "OZN Store capsule noire et dorée pour la street algérienne.",
+    "Pièces fortes, palette noir-or, coupe moderne. Une seule vitrine de drop pensée pour convertir vite sur mobile.",
+    "/seed/ozn-hero-drop.svg",
+    "Voir le drop",
+    now,
+  );
+
+  db.prepare(
+    `
+      UPDATE hero_drop
+      SET badge = ?, title = ?, description = ?, image_url = ?, cta_label = ?, updated_at = ?
+      WHERE id = 'homepage-drop'
+    `,
+  ).run(
+    "Nouveau Drop / جديد",
+    "OZN Store capsule noire et doree pour la street algerienne.",
+    "Pieces fortes, palette noir-or et lecture simple pour une boutique plus claire sur mobile.",
+    "/seed/ozn-hero-drop.svg",
+    "Voir le drop",
+    now,
+  );
 }
 
 function seedDatabase() {
@@ -120,7 +201,7 @@ function seedDatabase() {
 
   insertAdmin.run({
     id: "admin-primary",
-    displayName: "Nova Admin",
+    displayName: "OZN Admin",
     email: "admin@novathread.com",
     passwordHash: adminPassword,
     role: "admin",
@@ -164,8 +245,8 @@ function seedDatabase() {
       status: "published",
       description:
         "Structured nylon bomber with contrast piping, storm pocket details, and a cropped city silhouette built for late movement.",
-      category: "Outerwear",
-      tags: "drop-01,featured,outerwear",
+      category: "Vestes",
+      tags: "drop-01,featured,vestes",
       price: 14800,
       comparePrice: 17600,
       inventory: 14,
@@ -204,8 +285,8 @@ function seedDatabase() {
       status: "published",
       description:
         "Lightweight mesh jersey tee with tonal print placement and oversized drop-shoulder proportions.",
-      category: "Tops",
-      tags: "drop-01,new,tops",
+      category: "Maillots",
+      tags: "drop-01,new,maillots",
       price: 6200,
       comparePrice: null,
       inventory: 28,
@@ -266,11 +347,11 @@ function seedDatabase() {
   const insertOrder = db.prepare(`
     INSERT OR IGNORE INTO orders (
       id, order_number, customer_name, customer_email, customer_phone,
-      shipping_address, city, country, notes, subtotal, total, payment_status,
+      shipping_address, city, country, notes, subtotal, total, payment_status, shipping_mode,
       fulfillment_status, created_at, updated_at
     ) VALUES (
       @id, @orderNumber, @customerName, @customerEmail, @customerPhone,
-      @shippingAddress, @city, @country, @notes, @subtotal, @total, @paymentStatus,
+      @shippingAddress, @city, @country, @notes, @subtotal, @total, @paymentStatus, @shippingMode,
       @fulfillmentStatus, @createdAt, @updatedAt
     )
   `);
@@ -284,16 +365,17 @@ function seedDatabase() {
     {
       id: "order-nt-2048",
       orderNumber: "NT-2048",
-      customerName: "Timi Adebayo",
-      customerEmail: "timi@example.com",
-      customerPhone: "+2348012345678",
-      shippingAddress: "12 Admiralty Way",
-      city: "Lagos",
-      country: "Nigeria",
-      notes: "Leave with the concierge.",
+      customerName: "Yacine B.",
+      customerEmail: "yacine@example.com",
+      customerPhone: "+213555123456",
+      shippingAddress: "Hai El Badr, Kouba",
+      city: "Alger",
+      country: "Algérie",
+      notes: "Merci de confirmer avant livraison.",
       subtotal: 26000,
       total: 26000,
       paymentStatus: "paid",
+      shippingMode: "domicile",
       fulfillmentStatus: "processing",
       createdAt: now,
       updatedAt: now,
@@ -319,16 +401,17 @@ function seedDatabase() {
     {
       id: "order-nt-2051",
       orderNumber: "NT-2051",
-      customerName: "Amara Nwosu",
-      customerEmail: "amara@example.com",
-      customerPhone: "+2348098765432",
-      shippingAddress: "7B Freedom Crescent",
-      city: "Abuja",
-      country: "Nigeria",
+      customerName: "Lina A.",
+      customerEmail: "",
+      customerPhone: "+213661234567",
+      shippingAddress: "",
+      city: "Oran",
+      country: "Algérie",
       notes: "",
       subtotal: 6200,
       total: 6200,
       paymentStatus: "pending",
+      shippingMode: "desk",
       fulfillmentStatus: "new",
       createdAt: now,
       updatedAt: now,
@@ -422,8 +505,8 @@ export type Order = {
   customerEmail: string;
   customerPhone: string;
   shippingAddress: string;
-  city: string;
-  country: string;
+  wilaya: string;
+  shippingMode: "desk" | "domicile";
   notes: string | null;
   subtotal: number;
   total: number;
@@ -432,6 +515,16 @@ export type Order = {
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
+};
+
+export type HeroDrop = {
+  id: string;
+  badge: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  ctaLabel: string;
+  updatedAt: string;
 };
 
 type ProductRow = Omit<Product, "images" | "variants" | "featured" | "comparePrice"> & {
@@ -579,14 +672,24 @@ export function getOrders() {
     .prepare(
       `SELECT id, order_number AS orderNumber, customer_name AS customerName,
               customer_email AS customerEmail, customer_phone AS customerPhone,
-              shipping_address AS shippingAddress, city, country, notes, subtotal, total,
-              payment_status AS paymentStatus, fulfillment_status AS fulfillmentStatus,
+              shipping_address AS shippingAddress, city AS wilaya, notes, subtotal, total,
+              payment_status AS paymentStatus, COALESCE(shipping_mode, 'desk') AS shippingMode, fulfillment_status AS fulfillmentStatus,
               created_at AS createdAt, updated_at AS updatedAt
        FROM orders
        ORDER BY created_at DESC`,
     )
     .all() as OrderRow[];
   return rows.map(mapOrder);
+}
+
+export function getHeroDrop() {
+  return db
+    .prepare(
+      `SELECT id, badge, title, description, image_url AS imageUrl, cta_label AS ctaLabel, updated_at AS updatedAt
+       FROM hero_drop
+       WHERE id = 'homepage-drop'`,
+    )
+    .get() as HeroDrop | undefined;
 }
 
 export function getAdminUserByEmail(email: string) {
@@ -662,6 +765,14 @@ export type ProductInput = {
     url: string;
     alt: string;
   }>;
+};
+
+export type HeroDropInput = {
+  badge: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  ctaLabel: string;
 };
 
 export function saveProduct(input: ProductInput) {
@@ -773,13 +884,31 @@ export function updateOrderStatus(id: string, fulfillmentStatus: Order["fulfillm
   );
 }
 
+export function saveHeroDrop(input: HeroDropInput) {
+  db.prepare(
+    `INSERT INTO hero_drop (id, badge, title, description, image_url, cta_label, updated_at)
+     VALUES ('homepage-drop', ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       badge = excluded.badge,
+       title = excluded.title,
+       description = excluded.description,
+       image_url = excluded.image_url,
+       cta_label = excluded.cta_label,
+       updated_at = excluded.updated_at`,
+  ).run(input.badge, input.title, input.description, input.imageUrl, input.ctaLabel, new Date().toISOString());
+}
+
+export function clearHeroDrop() {
+  db.prepare("DELETE FROM hero_drop WHERE id = 'homepage-drop'").run();
+}
+
 export function createOrder(input: {
   customerName: string;
-  customerEmail: string;
+  customerEmail?: string;
   customerPhone: string;
-  shippingAddress: string;
-  city: string;
-  country: string;
+  shippingAddress?: string;
+  wilaya: string;
+  shippingMode: "desk" | "domicile";
   notes?: string;
   items: Array<{
     productId: string;
@@ -799,20 +928,21 @@ export function createOrder(input: {
       `INSERT INTO orders (
          id, order_number, customer_name, customer_email, customer_phone,
          shipping_address, city, country, notes, subtotal, total,
-         payment_status, fulfillment_status, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'new', ?, ?)`,
+         payment_status, shipping_mode, fulfillment_status, created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, 'new', ?, ?)`,
     ).run(
       id,
       orderNumber,
       input.customerName,
-      input.customerEmail,
+      input.customerEmail ?? "",
       input.customerPhone,
-      input.shippingAddress,
-      input.city,
-      input.country,
+      input.shippingAddress ?? "",
+      input.wilaya,
+      "Algérie",
       input.notes ?? "",
       subtotal,
       subtotal,
+      input.shippingMode,
       now,
       now,
     );

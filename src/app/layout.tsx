@@ -15,8 +15,8 @@ const body = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Nova Thread",
-  description: "Editorial streetwear storefront with a custom admin platform.",
+  title: "OZN Store",
+  description: "Boutique streetwear noir et or avec espace admin et checkout adapte au marche algerien.",
 };
 
 export default function RootLayout({
@@ -26,10 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="fr"
+      suppressHydrationWarning
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#09090d] text-stone-100">
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#09090d] text-stone-100">
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -12,12 +12,12 @@ export default function ShopPage() {
       <SiteHeader />
       <main className="mx-auto max-w-7xl px-5 py-12 md:px-8">
         <section className="rounded-[2.5rem] border border-white/10 bg-white/5 p-8">
-          <p className="text-sm uppercase tracking-[0.3em] text-[#f97316]">Shop all</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-[#c9a227]">Boutique / المتجر</p>
           <h1 className="display-font mt-4 text-6xl uppercase tracking-[0.12em] text-white md:text-8xl">
-            Full storefront
+            Toute la selection
           </h1>
           <p className="mt-4 max-w-2xl text-stone-300">
-            Explore every published item. Drafts stay hidden from the store until an admin pushes them live.
+            Tous les produits publies sont visibles ici. Les brouillons restent caches jusqu&apos;a validation admin.
           </p>
         </section>
 

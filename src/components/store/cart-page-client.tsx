@@ -14,6 +14,7 @@ type CheckoutState =
 
 export function CartPageClient({ products }: { products: Product[] }) {
   const { items, updateQuantity, removeItem, clearCart } = useCart();
+  const [shippingMode, setShippingMode] = useState<"desk" | "domicile">("desk");
   const [state, setState] = useState<CheckoutState>({ status: "idle" });
 
   const enriched = useMemo(
@@ -38,9 +39,9 @@ export function CartPageClient({ products }: { products: Product[] }) {
       customerName: String(formData.get("customerName") ?? ""),
       customerEmail: String(formData.get("customerEmail") ?? ""),
       customerPhone: String(formData.get("customerPhone") ?? ""),
-      shippingAddress: String(formData.get("shippingAddress") ?? ""),
-      city: String(formData.get("city") ?? ""),
-      country: String(formData.get("country") ?? ""),
+      wilaya: String(formData.get("wilaya") ?? ""),
+      shippingMode,
+      shippingAddress: shippingMode === "domicile" ? String(formData.get("shippingAddress") ?? "") : "",
       notes: String(formData.get("notes") ?? ""),
       items: enriched.map((item) => ({
         productId: item.productId,
@@ -62,7 +63,7 @@ export function CartPageClient({ products }: { products: Product[] }) {
     const data = (await response.json()) as { error?: string; orderNumber?: string };
 
     if (!response.ok || !data.orderNumber) {
-      setState({ status: "error", message: data.error ?? "Unable to submit checkout right now." });
+      setState({ status: "error", message: data.error ?? "Impossible de valider la commande maintenant." });
       return;
     }
 
@@ -73,17 +74,17 @@ export function CartPageClient({ products }: { products: Product[] }) {
   if (state.status === "success") {
     return (
       <section className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center">
-        <p className="text-sm uppercase tracking-[0.28em] text-[#f97316]">Order created</p>
+        <p className="text-sm uppercase tracking-[0.28em] text-[#c9a227]">Commande creee</p>
         <h1 className="mt-4 text-4xl font-black uppercase tracking-[0.14em] text-white">{state.orderNumber}</h1>
         <p className="mt-4 text-stone-300">
-          Your order is in the admin dashboard now with payment marked as pending. This keeps the flow flexible
-          until a live payment gateway is plugged in.
+          La commande est envoyee au tableau admin avec paiement en attente. Le flux reste simple et adapte au
+          marche local.
         </p>
         <Link
           href="/shop"
-          className="mt-8 inline-flex rounded-full bg-[#f97316] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black"
+          className="mt-8 inline-flex rounded-full bg-[#c9a227] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black"
         >
-          Back to shop
+          Retour boutique
         </Link>
       </section>
     );
@@ -92,14 +93,14 @@ export function CartPageClient({ products }: { products: Product[] }) {
   if (enriched.length === 0) {
     return (
       <section className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center">
-        <p className="text-sm uppercase tracking-[0.28em] text-stone-400">Cart</p>
-        <h1 className="mt-4 text-4xl font-black uppercase tracking-[0.14em] text-white">No pieces selected yet</h1>
-        <p className="mt-4 text-stone-300">Start with the latest drop and build your checkout from there.</p>
+        <p className="text-sm uppercase tracking-[0.28em] text-stone-400">Panier</p>
+        <h1 className="mt-4 text-4xl font-black uppercase tracking-[0.14em] text-white">Aucun article pour le moment</h1>
+        <p className="mt-4 text-stone-300">Choisis ton produit puis reviens ici pour finaliser la commande.</p>
         <Link
           href="/shop"
-          className="mt-8 inline-flex rounded-full bg-[#f97316] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black"
+          className="mt-8 inline-flex rounded-full bg-[#c9a227] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black"
         >
-          Shop now
+          Voir la boutique
         </Link>
       </section>
     );
@@ -111,14 +112,14 @@ export function CartPageClient({ products }: { products: Product[] }) {
         {enriched.map((item) => (
           <article
             key={`${item.productId}-${item.variant}`}
-            className="grid gap-4 rounded-[2rem] border border-white/10 bg-white/5 p-5 md:grid-cols-[180px_1fr]"
+            className="grid gap-4 rounded-[2rem] border border-white/10 bg-white/5 p-5 md:grid-cols-[160px_1fr]"
           >
             <img src={item.image} alt={item.title} className="aspect-[4/5] w-full rounded-[1.5rem] object-cover" />
             <div className="flex flex-col justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-stone-400">{item.product?.category ?? "Drop"}</p>
                 <h2 className="mt-2 text-2xl font-semibold text-white">{item.title}</h2>
-                <p className="mt-2 text-sm text-stone-400">Variant: {item.variant}</p>
+                <p className="mt-2 text-sm text-stone-400">Taille: {item.variant}</p>
               </div>
               <div className="flex flex-wrap items-center gap-4">
                 <input
@@ -135,7 +136,7 @@ export function CartPageClient({ products }: { products: Product[] }) {
                   onClick={() => removeItem(item.productId, item.variant)}
                   className="rounded-full border border-white/15 px-4 py-2 text-xs uppercase tracking-[0.2em] text-stone-300"
                 >
-                  Remove
+                  Retirer
                 </button>
                 <p className="ml-auto text-xl font-semibold text-white">{formatCurrency(item.subtotal)}</p>
               </div>
@@ -145,40 +146,97 @@ export function CartPageClient({ products }: { products: Product[] }) {
       </section>
 
       <section className="rounded-[2rem] border border-white/10 bg-white/5 p-6">
-        <p className="text-sm uppercase tracking-[0.28em] text-stone-400">Checkout handoff</p>
-        <h2 className="mt-3 text-3xl font-black uppercase tracking-[0.14em] text-white">Secure order intake</h2>
+        <p className="text-sm uppercase tracking-[0.28em] text-stone-400">Commande / الطلب</p>
+        <h2 className="mt-3 text-3xl font-black uppercase tracking-[0.14em] text-white">Infos livraison Algerie</h2>
         <p className="mt-3 text-sm text-stone-300">
-          v1 stores the order directly in the backend and leaves payment pending so a live gateway can be added
-          cleanly later.
+          Email optionnel. Wilaya obligatoire. Si tu choisis domicile, l&apos;adresse devient obligatoire.
         </p>
 
         <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5 text-sm uppercase tracking-[0.18em] text-stone-300">
-          <span>Subtotal</span>
+          <span>Sous-total</span>
           <span className="text-xl font-semibold text-white">{formatCurrency(subtotal)}</span>
         </div>
 
-        <form
-          action={handleSubmit}
-          className="mt-6 grid gap-4"
-        >
-          <input name="customerName" required placeholder="Full name" className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none" />
-          <input name="customerEmail" required type="email" placeholder="Email" className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none" />
-          <input name="customerPhone" required placeholder="Phone number" className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none" />
-          <textarea name="shippingAddress" required rows={3} placeholder="Shipping address" className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none" />
-          <div className="grid gap-4 md:grid-cols-2">
-            <input name="city" required placeholder="City" className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none" />
-            <input name="country" required defaultValue="Nigeria" placeholder="Country" className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none" />
+        <form action={handleSubmit} className="mt-6 grid gap-4">
+          <input
+            name="customerName"
+            required
+            placeholder="Nom complet / الاسم الكامل"
+            className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none"
+          />
+          <input
+            name="customerPhone"
+            required
+            placeholder="Telephone / الهاتف"
+            className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none"
+          />
+          <input
+            name="customerEmail"
+            type="email"
+            placeholder="Email (optionnel)"
+            className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none"
+          />
+          <input
+            name="wilaya"
+            required
+            placeholder="Wilaya"
+            className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none"
+          />
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setShippingMode("desk")}
+              className={`rounded-[1.25rem] border px-4 py-4 text-sm font-semibold uppercase tracking-[0.18em] transition ${
+                shippingMode === "desk"
+                  ? "border-[#c9a227] bg-[#c9a227] text-black"
+                  : "border-white/15 text-stone-200"
+              }`}
+            >
+              Desk
+            </button>
+            <button
+              type="button"
+              onClick={() => setShippingMode("domicile")}
+              className={`rounded-[1.25rem] border px-4 py-4 text-sm font-semibold uppercase tracking-[0.18em] transition ${
+                shippingMode === "domicile"
+                  ? "border-[#c9a227] bg-[#c9a227] text-black"
+                  : "border-white/15 text-stone-200"
+              }`}
+            >
+              Domicile
+            </button>
           </div>
-          <textarea name="notes" rows={3} placeholder="Delivery notes (optional)" className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none" />
+
+          {shippingMode === "domicile" ? (
+            <textarea
+              name="shippingAddress"
+              required
+              rows={3}
+              placeholder="Adresse de domicile / العنوان"
+              className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none"
+            />
+          ) : (
+            <div className="rounded-[1.25rem] border border-dashed border-white/15 px-4 py-4 text-sm text-stone-400">
+              Retrait desk selectionne. Aucune adresse supplementaire n&apos;est necessaire.
+            </div>
+          )}
+
+          <textarea
+            name="notes"
+            rows={3}
+            placeholder="Note (optionnel)"
+            className="rounded-[1.25rem] border border-white/15 bg-transparent px-4 py-3 text-white outline-none"
+          />
 
           {state.status === "error" ? <p className="text-sm text-rose-400">{state.message}</p> : null}
 
           <button
             type="submit"
             disabled={state.status === "loading"}
-            className="rounded-full bg-[#f97316] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black transition hover:bg-[#fb923c] disabled:opacity-70"
+            className="rounded-full bg-[#c9a227] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-black transition hover:bg-[#e2c769] disabled:opacity-70"
           >
-            {state.status === "loading" ? "Submitting..." : "Create order"}
+            {state.status === "loading" ? "Envoi..." : "Valider la commande"}
           </button>
         </form>
       </section>

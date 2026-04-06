@@ -4,11 +4,11 @@ import { createOrder, getProductById } from "@/lib/store";
 
 const orderSchema = z.object({
   customerName: z.string().min(2),
-  customerEmail: z.string().email(),
+  customerEmail: z.string().email().or(z.literal("")).optional(),
   customerPhone: z.string().min(5),
-  shippingAddress: z.string().min(5),
-  city: z.string().min(2),
-  country: z.string().min(2),
+  shippingAddress: z.string().optional(),
+  wilaya: z.string().min(2),
+  shippingMode: z.enum(["desk", "domicile"]),
   notes: z.string().optional(),
   items: z
     .array(
@@ -21,6 +21,14 @@ const orderSchema = z.object({
       }),
     )
     .min(1),
+}).superRefine((payload, context) => {
+  if (payload.shippingMode === "domicile" && (!payload.shippingAddress || payload.shippingAddress.trim().length < 5)) {
+    context.addIssue({
+      code: "custom",
+      message: "L'adresse est obligatoire pour la livraison a domicile.",
+      path: ["shippingAddress"],
+    });
+  }
 });
 
 export async function POST(request: Request) {
